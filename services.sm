@@ -1,0 +1,9 @@
+  TerminalClient openWith:
+    (TerminalClientHttpService at:
+      'http://ntserver:4242/TypeWise/sample') showing: 'mainScreen'
+
+  TerminalClient openWith:
+    (TerminalClientHttpService at:
+      'http://terminal.philemonworks.com:4242/heliworks/exam') showing: 'mainScreen'
+
+ FileDownloader startDownloadThreads: 3

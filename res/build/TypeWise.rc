@@ -1,0 +1,174 @@
+#include "windows.h"
+#include "rcst.h"
+#include "commctrl.h"
+#include "clientversion.h"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+IDD_DIALOG1 DIALOG DISCARDABLE 0, 0, 211, 98
+STYLE WS_CHILD|WS_CAPTION|WS_DISABLED|DS_SETFONT
+CAPTION "Property Page"
+FONT 8, "MS Shell Dlg"
+BEGIN
+	EDITTEXT        IDC_EDIT, 71,26,121,14,
+	LTEXT           "Screen",IDC_STATIC, 39,26,25,9, SS_CENTERIMAGE | NOT (WS_GROUP)
+	EDITTEXT        IDC_EDIT1, 71,46,121,14,
+	LTEXT           "Url",IDC_STATIC, 39,46,11,9, SS_CENTERIMAGE | NOT (WS_GROUP)
+	PUSHBUTTON      "Connect",IDC_BUTTON1, 81,65,50,14,
+
+END
+
+IDD_ABOUT DIALOG 22, 17, 167, 74
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+STYLE DS_MODALFRAME | DS_CENTER | WS_CAPTION | WS_SYSMENU
+CAPTION "About TypeWise"
+FONT 8, "Arial"
+BEGIN
+    DEFPUSHBUTTON   "OK", IDOK, 66, 54, 35, 14, WS_GROUP
+    CONTROL         IDI_APP, -1, "Static",SS_ICON| SS_REALSIZEIMAGE, 3,2,18,20
+    CTEXT           "TypeWise", -1, 30, 2, 111, 17
+    CONTROL         "", -1, "Static", SS_ETCHEDFRAME, 1, 48, 164, 1
+    CTEXT           "TypeWise Windows Client", -1, 8, 12, 156, 10
+    CTEXT           "Copyright (C) 2004 PhilemonWorks B.V.", -1, 6, 36, 153, 10
+    CTEXT           VERSION_STR, -1, 4, 24, 156, 10
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+IDI_APP                 ICON    DISCARDABLE     "TypeWise.ICO"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Messages
+//
+
+LANGUAGE 0x9,0x1
+1 11 "stmsg.bin"
+//
+// TOOLTIPS strings (provide short info)
+STRINGTABLE
+{
+// Standard File commands
+//ID_FILE_NEW + TOOLTIPOFFSET		"New"
+//ID_FILE_OPEN + TOOLTIPOFFSET		"Open"
+//ID_FILE_SAVE + TOOLTIPOFFSET		"Save"
+//ID_FILE_SAVE_AS + TOOLTIPOFFSET		"Save As"
+//ID_FILE_CLOSE + TOOLTIPOFFSET		"Close"
+//ID_FILE_PAGE_SETUP + TOOLTIPOFFSET	"Page Setup"
+//ID_FILE_PRINT + TOOLTIPOFFSET		"Print"
+
+// EDIT menu commands
+//ID_EDIT_UNDO + TOOLTIPOFFSET		"Undo"
+//ID_EDIT_CUT + TOOLTIPOFFSET		"Cut"
+//ID_EDIT_COPY + TOOLTIPOFFSET		"Copy"
+//ID_EDIT_CLEAR + TOOLTIPOFFSET		"Clear"
+//ID_EDIT_PASTE + TOOLTIPOFFSET		"Paste"
+//ID_EDIT_REPEAT + TOOLTIPOFFSET		"Repeat"
+//ID_EDIT_REPLACE + TOOLTIPOFFSET		"Replace"
+//ID_EDIT_FIND + TOOLTIPOFFSET		"Find"
+//ID_EDIT_SELECT_ALL + TOOLTIPOFFSET	"Select All"
+}
+
+STRINGTABLE
+{
+//// Standard File commands
+//ID_FILE_NEW		"Creates a new document"
+ID_FILE_OPEN		"Opens a service"
+//ID_FILE_SAVE		"Saves the active document"
+//ID_FILE_SAVE_AS		"Saves the active document under a new name"
+//ID_FILE_SAVE_ALL	"Saves all documents"
+//ID_FILE_CLOSE		"Closes the active document"
+//ID_FILE_PAGE_SETUP	"Changes page layout settings"
+//ID_FILE_PRINT		"Prints all or part of the active document"
+//ID_APP_EXIT 		"Quits the application; prompts to save documents"
+//ID_APP_ABOUT		"Displays program and copyright information"
+
+// Standard View commands
+//ID_VIEW_STATUS		"Show/Hides the Statusbar"
+//ID_VIEW_TOOL		"Show/Hides the Toolbar"
+//ID_VIEW_SPLIT		"Moves the split bar"
+//ID_VIEW_SPLIT_HORZ	"Moves the split bar horizontally"
+//ID_VIEW_SPLIT_VERT	"Moves the split bar vertically"
+//ID_CUSTOMIZE		"Customizes the Toolbar"
+//
+// EDIT menu commands
+//ID_EDIT_UNDO		"Undoes the last action"
+//ID_EDIT_CUT		"Removes the selection and puts in on the clipboard"
+//ID_EDIT_COPY		"Copies the selection and puts in on the clipboard"
+//ID_EDIT_CLEAR		"Erases the selection"
+//ID_EDIT_PASTE		"Inserts Clipboard contents at the insertion point"
+//ID_EDIT_REPEAT		"Repeats the last find operation"
+//ID_EDIT_REPLACE		"Replaces specific text with different text"
+//ID_EDIT_FIND		"Finds the specified text"
+//ID_EDIT_SELECT_ALL	"Selects the entire document"
+
+// Properties
+ID_PROPERTIES		"Edits properties of the current item"
+
+// MDI window commands
+//ID_WINDOW_CASCADE	"Arranges the windows so they overlap"
+//ID_WINDOW_TILE_HORZ	"Arranges the windows as nonoverlapping horizontal tiles"
+//ID_WINDOW_TILE_VERT	"Arranges the windows as nonoverlapping vertical tiles"
+//ID_WINDOW_ARRANGE	"Arranges icons"
+
+// Help commands
+//ID_CONTEXT_HELP         "Displays contextual help"
+//ID_DEFAULT_HELP         "Displays the table of contents for the online documentation"
+//ID_HELP_INDEX           "Search the help system for a particular word or phrase"
+//ID_HELP_USING           "Displays instructions on how to use the Windows Help System"
+//ID_TIPOFDAY             "Displays a Tip of the Day"
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+1 VERSIONINFO
+ FILEVERSION 3,5,0,0
+ PRODUCTVERSION 3,5,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0xbL
+#else
+ FILEFLAGS 0xaL
+#endif
+ FILEOS 0x10001L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "PhilemonWorks B.V.\0"
+            VALUE "FileDescription", "TypeWise Windows Client\0"
+            VALUE "FileVersion", "0.0\0"
+            VALUE "InternalName", "TypeWise\0"
+            VALUE "LegalCopyright", "Copyright \251 PhilemonWorks B.V. 2004\0"
+            VALUE "LegalTrademarks", "TypeWise is a trademark of PhilemonWorks B.V.\0"
+            VALUE "OriginalFilename", "\0"
+            VALUE "ProductName", "TypeWise Windows Client\0"
+            VALUE "ProductVersion", VERSION_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+
+
+
+

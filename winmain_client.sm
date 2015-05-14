@@ -1,0 +1,27 @@
+!ApplicationProcess * methods!
+winMain: hModule with: hPrevInstance with: cmdLineArgs with: nCmdShow
+	| server window |
+	Processor outputDebugLine: 'Initializing fonts'.    
+	TerminalFontMetrics initializeAvailable.
+
+	Processor outputDebugLine: 'Command line processing'.    
+	    (cmdLineArgs size >= 3) ifTrue: [
+		window := cmdLineArgs at: 2.
+		server := cmdLineArgs at: 3.
+	]. 
+	(cmdLineArgs size == 2) ifTrue: [
+		window := cmdLineArgs at: 2.
+	]. 
+	nil isNil ifFalse: [ TerminalClient runtimeInitialize. ]. " This does nothing except including some symbols"
+	server isNil ifTrue: [ server := 'http://terminal.philemonworks.com:4242/terminal/NS' ].
+	window isNil ifTrue: [ window := 'mainScreen' ].
+
+	Processor outputDebugLine: 'Building window for: ', server, ' service: ', window.    
+	Terminal registerClass: hModule.
+	WinApplication new "splashWindow ; " run: [
+	  Processor outputDebugLine: 'Opening window and entering message loop'.
+	  (TerminalClient openWithService:
+    	(TerminalClientHttpService at: server) showing: window) terminal.
+    	
+	]
+! !

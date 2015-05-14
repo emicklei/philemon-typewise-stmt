@@ -1,0 +1,1 @@
+#define VERSION_STR       "0.10.65\0"

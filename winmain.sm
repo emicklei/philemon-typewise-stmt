@@ -1,0 +1,95 @@
+!ApplicationProcess * methods!
+winMain: hModule with: hPrevInstance with: cmdLineArgs with: nCmdShow
+	| url winApp netmodule noGdiPlus gdiplusModule |
+
+	" -- Defaults "
+	Logger setInfo.
+	noGdiPlus := false.
+
+	" -- Parse command line "
+    (cmdLineArgs size >= 2) ifTrue: [
+    	Logger setInfo.
+		url := cmdLineArgs at: 2.
+		url := url replaceAll: 'typewise:' with: 'http:'.
+		(cmdLineArgs size >= 3) 
+			ifTrue: [ 
+				((cmdLineArgs indexOf: '-noGDIPlus' startingAt: 3) = 0) 	ifFalse: [ noGdiPlus := true ].
+				((cmdLineArgs indexOf: '-debugInfo' startingAt: 3) = 0) 	ifFalse: [ Logger setDebug ].
+				((cmdLineArgs indexOf: '-techInfo' startingAt: 3) = 0) 		ifFalse: [ Logger setTechInfo ].
+				((cmdLineArgs indexOf: '-info' startingAt: 3) = 0) 			ifFalse: [ Logger setInfo ].
+				((cmdLineArgs indexOf: '-warn' startingAt: 3) = 0) 			ifFalse: [ Logger setWarn ].
+				((cmdLineArgs indexOf: '-disableInfo' startingAt: 3) = 0) 	ifFalse: [ Logger disable ].
+			] 				
+	] ifFalse: [ 
+	   MessageBox owner: NULL text: 'Invalid parameter count on command line.\nPlease call with the following parameters:\n\n  TypeWise <service URL> [-noGDIPlus] [-debugInfo|-techInfo|-info|-warn|-disableInfo]' title: 'Invalid parameter(s)' style: 65552 " MB_OK|MB_SETFOREGROUND|MB_ICONSTOP ".
+	   Processor exitProcess: 1.
+	].
+
+	Logger info: '- TypeWise application '.    
+	Logger techInfo: '-- Initializing constants'.
+	TerminalWidgetBinaryAccessor setupClientAccessors.
+	
+	" -- Load netmsg.dll to be able to produce meaningfull network error messages "
+	Logger info: '-- Loading wininet.dll'.
+	netmodule := HModule tryLoadLibrary: 'wininet.dll'.
+	(netmodule = nil)  
+		ifFalse: [ 
+			netmodule := HModule value: netmodule.
+			TerminalClientHttpService netmodule: netmodule.
+			Logger info: ('--- using ', netmodule getModuleFileName asString, ' to display network errors'). ]
+		ifTrue: [ Logger warn: '--- Warning: Load failed, network errors will probably have a cryptic nature'. ].
+	
+	" -- Test for symbol table "
+	#string asString = 'string' 
+		ifTrue:  [ Logger techInfo: '-- Compiled with symbol table'  ]
+		ifFalse: [ Logger techInfo: '-- Compiled without symbol table' ].
+
+	noGdiPlus ifFalse: [ 
+		gdiplusModule := HModule tryLoadLibrary: 'gdiplus.dll'.
+		gdiplusModule isNil ifTrue: [
+			noGdiPlus := true.
+			Logger warn: '-- Could not load GDIPlus.dll, running client without GDIPlus capabilities'.
+		] ifFalse: [
+			noGdiPlus := false.
+			Logger info: '-- Found GDIPlus.dll (', gdiplusModule getModuleFileName ,'), running client with GDIPLus capabilities'.
+		]
+	].
+
+	
+	" -- This does nothing except including some symbols (dirty hack)"
+	nil isNil ifFalse: [ TerminalClient runtimeInitialize. ]. 
+
+	Logger info: '-- Building window for: ', url.
+	Terminal registerClass: hModule.
+	winApp := WinApplication new .
+	
+	"winApp splashWindow " 
+	noGdiPlus ifFalse: [ 
+		Logger info: '-- GDIPlus enabled, starting GDIPlus. To disable, specify -noGDIPlus as second parameter'.
+		WINAPI StGdiplusStartup .
+	] ifTrue: [
+		Logger info: '-- GDIPlus disabled. Images will not be shown'.
+		Terminal imageClass: TerminalImageStub.
+	].
+	
+	winApp run: [ | terminalclient | 
+	  Logger techInfo: '-- Initializing COM'.
+	  WINAPI OleInitialize: NULL.
+	  
+	  Logger techInfo: '-- Opening window and entering message loop'.
+	  terminalclient := (TerminalClient openURL: url).
+	  " Could not open resource, so quitting "
+	  terminalclient isNil ifTrue: [ 
+	  	Logger showError: '!! Client error: ', SstUrlAdapter lastError.
+	  	Processor exitProcess: 1. 
+	  ].
+	  terminalclient terminal.
+	].
+	WINAPI OleUninitialize.
+	noGdiPlus ifFalse: [ 
+		WINAPI StGdiplusShutdown  .
+	]. 
+	gdiplusModule isNil ifFalse: [
+		gdiplusModule close.
+	]. 
+	TerminalClientHttpService release.

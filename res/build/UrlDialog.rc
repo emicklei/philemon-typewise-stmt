@@ -1,0 +1,21 @@
+// ST/MT generated resource script
+#include "windows.h"
+#include "commctrl.h"
+#include "rcst.h"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+IDD_DIALOG1 DIALOG DISCARDABLE 0, 0, 211, 98
+STYLE WS_CHILD|WS_CAPTION|WS_DISABLED|DS_SETFONT
+CAPTION "Property Page"
+FONT 8, "MS Shell Dlg"
+BEGIN
+	EDITTEXT        IDC_EDIT, 71,26,121,14, 
+	LTEXT           "Screen",IDC_STATIC, 39,26,25,9, SS_CENTERIMAGE | NOT (WS_GROUP)
+	EDITTEXT        IDC_EDIT1, 71,46,121,14, 
+	LTEXT           "Url",IDC_STATIC, 39,46,11,9, SS_CENTERIMAGE | NOT (WS_GROUP)
+	PUSHBUTTON      "Connect",IDC_BUTTON1, 81,65,50,14, 
+	
+END

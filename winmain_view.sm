@@ -1,0 +1,95 @@
+!ApplicationProcess * methods!
+winMain: hModule with: hPrevInstance with: cmdLineArgs with: nCmdShow
+
+	TerminalFontMetrics initializeAvailable.      
+	Terminal registerClass: hModule.
+	
+	WinApplication new run: [
+		| winapp form  label field button dropdown t|
+		form := TerminalWidget panelIn: (3@3 extent: 20@30).
+		form backgroundColor: Color blue.
+		form name: 'inputFormPanel'.
+	
+		label := TerminalWidget labelIn: (4@4 extent: 0@8).
+		label backgroundColor: Color navy.
+		label name: 'label1'.
+		label string: 'Integer'.
+		form add: label.
+	
+		field := TerminalWidget inputIn: (4@13 extent: 0@11).
+		field backgroundColor: Color white ;foregroundColor: Color black.
+		field name: 'field1'.
+		field string: '42'.
+		field validateSelector: #validatePositiveInteger.
+		form add: field.
+	
+		label := TerminalWidget labelIn: (5@4 extent: 0@8).
+		label backgroundColor: Color navy.
+		label name: 'label2'.
+		label string: 'String'.
+		form add: label.
+	
+		field := TerminalWidget inputIn: (5@13 extent: 0@11).
+		field backgroundColor: Color white ;foregroundColor: Color black.
+		field name: 'field2'.
+		field string: 'Hello'.
+		form add: field.	
+		
+		label := TerminalWidget labelIn: (6@4 extent: 0@8).
+		label backgroundColor: Color navy.
+		label name: 'label3'.
+		label string: 'Float'.
+		form add: label.
+		
+		field := TerminalWidget inputIn: (6@13 extent: 0@11).
+		field backgroundColor: Color white ;foregroundColor: Color black.
+		field name: 'field3'.
+		field string: '3.14159'.
+		field validateSelector: #validateFloat.
+		form add: field.		
+	
+		label := TerminalWidget labelIn: (7@4 extent: 0@8).
+		label backgroundColor: Color navy.
+		label name: 'label4'.
+		label string: 'Date'.
+		form add: label.
+	
+		field := TerminalWidget inputIn: (7@13 extent: 0@11).
+		field backgroundColor: Color white ;foregroundColor: Color black.
+		field name: 'field4'.
+		field string: '20-11-1967'.
+		field validateSelector: #validateDate.
+		form add: field.			
+
+		label := TerminalWidget labelIn: (8@4 extent: 0@8).
+		label backgroundColor: Color navy.
+		label name: 'label5'.
+		label string: 'Choose'.
+		form add: label.
+
+		dropdown := TerminalWidget dropDownListIn: (8@13 extent: 0@11).
+		dropdown backgroundColor: Color white ;foregroundColor: Color black.
+		dropdown maximumVisibleRows: 4.
+		dropdown name: 'dropdown'.
+		dropdown items: #( 'monday' 'tuesday' 'wednesday' 'thursday' 'friday' 'saturday' 'sunday').
+		form add: dropdown.			
+	
+		button := TerminalWidget buttonIn: (10@5 extent: 0@5).
+		button backgroundColor: Color black ;foregroundColor: Color white.
+		button name: 'ok'.
+		button label: 'OK'. 
+		button when: #clicked send: #value to:[ self processInputFormData: form inputNamesAndValues ].
+		form add: button.
+
+		button := TerminalWidget buttonIn: (10@14 extent: 0@7).
+		button backgroundColor: Color black ;foregroundColor: Color white.
+		button name: 'cancel'.
+		button label: 'CANCEL'. 
+		button when: #clicked send: #inspect to: self.
+		form add: button.
+   
+   		t := Terminal new.
+		t openWidget.
+		t show: form.
+		t ]
+! !

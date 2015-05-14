@@ -1,0 +1,227 @@
+<?xml version="1.0" standalone="yes"?>
+<PROJECT Name="Patch608" XMLProjectVersion="1.0" Category=""><PROFILE/><CLASSES><CLASS Name="ApplicationProcess" IncludeDef="false"><INSTANCEMETHODS fIncludeAll="false"><METHOD Selector="terminateThread:exitCode:" Category="Init / Release" Timestamp="2004-05-10T07:32:00Z" Usage="0" UsageFlags="0"><![CDATA[terminateThread: hThread exitCode:  anInteger
+	"
+	Terminates the thread identified by the given thread handle
+	safely. This method can be used to terminate another thread.
+	Parameters:
+		hThread      A thread handle (a WinThread or an Integer specifying a thread handle).
+		anInteger    An application-defined 32 bit value.
+	Return Value:
+		This method does not return a value.
+	"                   
+	" Enter CreateThreadCS to prevent GC from being started "
+	WINAPI EnterCriticalSection: m_createThreadCS basicAddress.
+	m_hGC notNil ifTrue: [
+		" Enter flip CS critical section to prevent GC from running "
+		WINAPI EnterCriticalSection: m_flipCS basicAddress.        		                            
+		WINAPI PulseEvent: m_gcEvent. 
+		WINAPI SuspendThread: m_hGC.
+	].
+	WINAPI TerminateThread: hThread with: anInteger.
+	m_hGC notNil ifTrue: [
+		WINAPI ResumeThread: m_hGC.  
+		WINAPI LeaveCriticalSection: m_flipCS basicAddress.	
+	].
+	WINAPI LeaveCriticalSection: m_createThreadCS basicAddress.]]></METHOD></INSTANCEMETHODS><CLASSMETHODS fIncludeAll="false"/></CLASS><CLASS Name="Core::ProjectManagerObject" IncludeDef="false"><INSTANCEMETHODS fIncludeAll="false"><METHOD Selector="vssProjectNames" Category=" VSS" Timestamp="2004-03-22T13:46:37Z" Usage="0" UsageFlags="0"><![CDATA[vssProjectNames  
+	"
+	Returns all project names under the root.
+	Return Value: 
+		An OrderedCollection of strings.
+	"
+	|db proj items item names s|
+	(db := self vssOpen) isNil ifTrue: [^EmptyArray]. 
+	
+	proj := db VSSItem: '$/' Deleted: false. 
+	proj isNil ifTrue: [^EmptyArray].
+	items := proj getProperty: 'Items'. 
+	s := items getProperty: 'Count'.
+	s size == 0 ifTrue: [^EmptyArray].   
+	names := OrderedCollection new: s.
+	1 to: s do: [ :i |
+		item := items getProperty: 'Item' with: i.
+		(item getProperty: 'Type') == VSSITEM_PROJECT ifTrue: [ 
+			names add: (item getProperty: 'Name').       
+		]
+	].
+	^names]]></METHOD></INSTANCEMETHODS><CLASSMETHODS fIncludeAll="false"/></CLASS><CLASS Name="GUIBuilder::IFControlWindow" IncludeDef="false"><INSTANCEMETHODS fIncludeAll="false"><METHOD Selector="storeRcTitleOn:" Category="Persistent Storage" Timestamp="2004-02-05T15:48:45Z" Usage="0" UsageFlags="0"><![CDATA[storeRcTitleOn: stream
+	"
+	Private - Apppends the title of this window as a resource
+	string.
+	Parameters:
+		stream    An ANSI character stream.
+	Return Value:
+		The receiver.
+	"
+	stream nextPutAll: '"'A.
+	Compiler unfoldStringEx: self getTitleText asStringA on: stream.		
+	stream nextPutAll: '",'A]]></METHOD><METHOD Selector="storeAsciiTemplateOn:parent:" Category="Persistent Storage" Timestamp="2004-02-05T15:43:44Z" Usage="0" UsageFlags="0"><![CDATA[storeAsciiTemplateOn: stream parent: frameWindow
+	"
+	Private - Stores an ASCII string that reconstructs the receiver on 
+	a stream.
+	Parameters:
+		stream      An ANSI character stream.
+		frameWindow The parent window of the receiver.
+	Return Value:
+		true if data has been appended, false otherwise.
+	Remarks:
+	The format is as below
+	(<window class> openWindow: <self id>
+		title: <self getWindowText>
+		exStyle: <m_dwExStyle>
+		style: <m_dwStyle>    
+		parent: self
+		framing: <frameMatrix>)
+
+	where <frameMatrix> resolves to: 
+		FrameMatrix scale: #( s1 s2 s3 s4) offset: #(o1 o2 o3 o4)
+	"
+	| id rc sz cdata|
+	id := WINAPI GetWindowLong: m_handle with: GWL_ID.
+	rc := WinRectangle localNew.
+	stream 
+		nextPutAll: '\t\taddItemTemplate: ''' asStringA;
+		nextPutAll: self win32ClassName;
+		nextPutAll: ''' asStringW\n\t\t\ttitle: ' asStringA.
+	sz := self getTitleText _asStringA.
+	sz == EmptyStringA ifTrue: [
+		stream nextPutAll: 'EmptyStringW\n\t\t\tstyle: ' asStringA
+	]
+	ifFalse: [
+		stream nextPut: $'.
+		Compiler unfoldStringEx: sz on: stream.
+		stream  nextPutAll: ''' asStringW\n\t\t\tstyle: ' asStringA.
+	].
+	WindowBuilder printStyle: m_dwStyle 
+		on: stream 
+		clsID: m_classID.
+	stream nextPutAll: '\n\t\t\textendedStyle: ' asStringA.
+	WindowBuilder printStyle: m_dwExStyle 
+		on: stream 
+		clsID: -1.
+	self getClientControlRect: rc.
+
+	stream 
+		nextPutAll: '\n\t\t\tx: ' asStringA;
+		nextPutAll: rc left asStringA;
+		nextPutAll: ' y: ' asStringA;
+		nextPutAll: rc top asStringA;
+		nextPutAll: ' cx: ' asStringA;
+		nextPutAll: rc width asStringA;
+		nextPutAll: ' cy: ' asStringA;
+		nextPutAll: rc height asStringA;
+		nextPutAll: '\n\t\t\tid: ' asStringA;
+		nextPutAll: m_szSymbol asStringA.
+
+	" append creation data "
+	(cdata := self getCreationData) notNil ifTrue: [
+		stream nextPutAll: '\n\t\t\tcreationData: ' asStringA.
+		DesignTimeWindow storeWordArray: cdata indent: '\n\t\t\t' asStringA on: stream.
+	].
+
+	^true]]></METHOD></INSTANCEMETHODS><CLASSMETHODS fIncludeAll="false"/></CLASS><CLASS Name="IDE::CHB" IncludeDef="false"><INSTANCEMETHODS fIncludeAll="false"><METHOD Selector="smalltalkBrowseProject" Category="Event Handling" Timestamp="2004-02-05T18:37:57Z" Usage="0" UsageFlags="0"><![CDATA[smalltalkBrowseProject
+	"
+	Private - Opens a new Project Browser on a project that references the
+	current class. If several projects reference the class, the user is prompted.
+	Return Value :
+		Always FALSE.
+	"       
+	|cls|
+	cls := m_focusClass.
+	cls isNil ifTrue: [cls := m_thisClass].
+	
+	(ProjectBrowser browseProjectsOn: cls 
+		method: self getCurrentMethod 
+		parent: self) == false ifTrue: [
+		ProjectBrowser new open
+	].
+	^FALSE]]></METHOD></INSTANCEMETHODS><CLASSMETHODS fIncludeAll="false"/></CLASS><CLASS Name="IDE::MOSInspector" IncludeDef="false"><INSTANCEMETHODS fIncludeAll="false"><METHOD Selector="update" Category="Event Handling" Timestamp="2004-02-03T21:44:31Z" Usage="0" UsageFlags="0"><![CDATA[update
+	"
+	Private - Updates the dump window, according to the view mode.
+	"
+	|labels lv |
+	(self childAt: IDC_LIST2) deleteAllItems.
+	(lv := self childAt: IDC_LIST1) deleteAllItems. 	
+	m_contents notNil ifTrue: [
+		labels := Array new: 1. 
+		#('self' 'root object' 'class directory') basicDo: [ :i :str |
+			labels at: 1 put: str.
+			lv insertItemRow: i - 1 labels: labels data: i.		
+		]
+	]
+	ifFalse: [
+		self title: nil
+	]]]></METHOD><METHOD Selector="setKey" Category="Event Handling" Timestamp="2004-02-03T21:40:18Z" Usage="0" UsageFlags="0"><![CDATA[setKey
+	"
+	Private - Displays the contents in response to user action.
+	"
+	| lv |
+	lv := self childAt: IDC_LIST2.
+	lv deleteAllItems.
+
+	(self childAt:  IDC_LIST1) getSelItem
+	case: 0 perform: [self printStream: lv]
+	case: 1 perform: [
+		lv insertItemRow: 0 
+			labels: (Array with: m_object printString with: EmptyString) 
+			data: 0.
+	]
+	case: 2 perform: [self printClassDirectory: lv]]]></METHOD><METHOD Selector="initWindow" Category="Init / Release" Timestamp="2004-02-03T21:44:14Z" Usage="0" UsageFlags="0"><![CDATA[initWindow
+	"
+	Private - Initializes the window before it is being shown.
+	Return Value: 
+		This method does not return a value.
+	"
+	| split lv pt|
+	lv := ListView openWindow: IDC_LIST2
+		title: NULL
+		exStyle: WS_EX_CLIENTEDGE
+		style: WS_VISIBLE|WS_CHILD|LVS_REPORT|LVS_NOSORTHEADER|LVS_SHOWSELALWAYS
+		parent: self
+		framing: (FrameMatrix scale: #( 0 0 1000 1000) offset: #( 200 0 0 0) ).
+	lv insertColumn: 0 
+		fmt: LVCFMT_LEFT 
+		cx: 200 
+		text: 'Object'.
+	lv insertColumn: 1 
+		fmt: LVCFMT_LEFT 
+		cx: 200 
+		text: 'Status'.
+
+	(lv := ListView openWindow: IDC_LIST1
+		style: WS_VISIBLE|WS_CHILD|WS_BORDER|
+			LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS 
+		parent: self
+		framing: (FrameMatrix scale: #( 0 0 0 1000) offset: #( 0 0 200 0) ))
+		setExtendedStyle: LVS_EX_FULLROWSELECT|LVS_EX_GRIDLINES.  
+	lv insertColumn: 1 fmt: LVCFMT_LEFT cx: 200 text: 'Contents'.	
+
+	pt := WinPoint localNew.
+	(split := SplitPane new)
+		leftPanes: #( ##(IDC_LIST1) ) rightPanes: #( ##(IDC_LIST2) );
+		parent: self;
+ 		position: (self loadProfile: 'SPLITPOS' into: pt).
+
+	self loadProfileFonts.
+
+	self update]]></METHOD><METHOD Selector="fileOpen:" Category="File Handling" Timestamp="2004-02-05T16:41:33Z" Usage="0" UsageFlags="0"><![CDATA[fileOpen: szFile
+	"
+	Opens a specified file.
+	Parameters: 
+		szFile   The name of a file to open.
+	Return Value: 
+		true if successful, false otherwise.
+	"
+	|rootObject|
+	m_contents := MappedObjectStream new.
+	rootObject := m_contents openFile: szFile.
+	(m_object := Object _fromAddress: rootObject basicAddress) == void ifTrue: [
+		MessageBox owner: self
+			text: (String wsprintf: 'Root object (0x%08x) is corrupt (class 0x%08x)'
+				_with: rootObject basicAddress
+				_with: rootObject _class basicAddress)  
+			title: MSG_STDTITLE_PROCESSNAME
+			style: MB_OK|MB_ICONWARNING  
+	].
+	self update.
+	^true]]></METHOD></INSTANCEMETHODS><CLASSMETHODS fIncludeAll="false"/></CLASS></CLASSES><SCRIPTS/><POOLS/><PREREQ_PROJECTS/><PREREQ_DLLS/><GLOBAL_VARS/><TLS_VARS/></PROJECT>
+

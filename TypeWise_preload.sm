@@ -1,0 +1,69 @@
+| pl clslist lightVersion|
+lightVersion := false.
+pl := ProjectsLoader new.
+pl includeTests: false.
+" Set 'class path' " 
+pl libPath: ((OrderedCollection new) 
+					  add: 'D:\\smalltalk\\philemon-typewise-stmt'
+					; add: 'D:\\smalltalk\\philemon-typewise-vast'  
+					; add: 'D:\\smalltalk\\philemon-typewise-stmt\\test'
+					; add: 'D:\\smalltalk\\philemon-typewise-vast\\test'  
+					; add: 'C:\\Program Files\\Smalltalk MT 5.2\\Source\\' 
+					; add: 'C:\\Program Files\\Smalltalk MT 5.2\\Source\\GdiPlus\\' 
+					; add: 'C:\\Program Files\\Smalltalk MT 5.2\\Extras\\winsock\\'
+					; add: 'C:\Program Files\Smalltalk MT 5.2\Goodies\SUnit2' 
+					; yourself) asArray.
+
+" Load prerequisite projects supplied from Smalltalk MT " 					
+" Patch from Tarik "					
+pl loadStMtProjectFromFile: 'patch608.spx'.					
+pl loadStMtProjectFromFile: 'Sunit2.spx'.
+pl loadStMtProjectFromFile: 'smalltalk.spx'.
+pl loadStMtProjectFromFile: 'smalltalk extensions.sp'.
+pl loadStMtProjectFromFile: 'Smalltalk system extensions.sp'.  
+pl loadStMtProjectFromFile: 'Internet.spx'.   
+
+" When light version is true, a Stub will be loaded instead of 'real' GdiPlus. "
+" This means that images will no be shown. However, the executable will be half " 
+" it''s original size " 
+lightVersion 
+	ifFalse: [ pl loadStMtProjectFromFile: 'GdiPlus.spx' ]
+	ifTrue: [ pl loadStMtProjectFromFile: 'GdiPlusStub.spx' ].    
+
+" Now load some Smalltalk MT specific projects that supply classes we need " 
+pl loadStMtProjectFromFile: 'PhilemonLogger.sp'.
+pl loadStMtProjectFromFile: 'PhilemonStMtExtensions.sp'.
+pl loadStMtProjectFromFile: 'PhilemonFileDownloader.sp'.   
+pl loadStMtProjectFromFile: 'PhilemonToolsSUnitExtensions.sp'. 
+pl includeTests ifTrue: [
+	pl loadStMtProjectFromFile: 'PhilemonStMtExtensionsTest.sp'.
+].
+pl loadStMtProjectFromFile: 'PhilemonStMtGraphics.sp'.
+pl loadStMtProjectFromFile: 'PhilemonStMtInternetExtensions.sp'.
+pl loadStMtProjectFromFile: 'PhilemonVAStToStMtSpecific.sp'.
+pl loadStMtProjectFromFile: 'PhilemonTerminalClientStMt_Preload.sp'.
+
+" The following projects are exported from VA. "
+" The following files (projects) are loaded for each VA project: "
+"   - <projectname>STMT_preload.sp		-- This project may be edited by MT developer " 
+"   - <projectname>.sp					-- This project is exported from VA and should not be edited " 
+"   - <projectname>STMT_postload.sp		-- This project may be edited by MT developer " 
+" When includeTests is true, the following projects are loaded as well; " 
+"   - <projectname>Test.sp				-- This project is exported from VA and should not be edited " 
+"   - <projectname>TestStMt_postload.sp	-- This project may be edited by MT developer " 
+clslist := OrderedCollection new.
+clslist add: 'PhilemonKernelExtensions'.    
+clslist add: 'PhilemonColorSupport'.
+clslist add: 'PhilemonObjectSerialization'.
+clslist add: 'PhilemonEventTriggerSupport'. 
+clslist add: 'PhilemonTextEmphasisSupport'.
+clslist add: 'PhilemonTerminalCommon'.
+clslist add: 'PhilemonTerminalView'.
+clslist add: 'PhilemonTerminalClient'.
+pl loadProjectsFromFilesNamed: clslist.
+
+pl loadStMtProjectFromFile: 'QuickFixesTypeWise.sp'.
+
+"lightVersion
+	ifFalse: [ pl loadStMtProjectFromFile: 'TypeWise.sp' ]
+	ifTrue: [ pl loadStMtProjectFromFile: 'TypeWiseLight.sp' ]."

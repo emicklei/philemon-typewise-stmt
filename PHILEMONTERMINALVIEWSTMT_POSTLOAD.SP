@@ -1,0 +1,1474 @@
+""
+PROJECTNAME "PhilemonTerminalViewStMt Postload" .
+PROJECTCATEGORY "Philemon Terminal View" .
+PREREQUISITES ADVAPI32.dll philemonstmtgraphics philemonvasttostmtspecific .
+
+CLASS Rectangle
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	intersectOrLine:
+END
+
+CLASS TerminalButtonEvent
+INCLUDEDEF=1
+CLASSMETHODS *
+INSTANCEMETHODS *
+
+CLASS TerminalDialog
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	okDialog
+	okCancelDialog
+	yesNoCancelDialog
+	warnDialog
+	infoDialog
+	errorDialog
+END
+
+CLASS TerminalFontMetrics
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+	initializeAvailable
+	default
+END
+INSTANCEMETHODS 
+BEGIN
+	computeMetrics
+	logFont:
+	release
+	validOrConfirm
+	loadFontByName:
+	loadFontByName:size:
+	loadFontByLogFont:
+	fontName:
+	font:
+	storeCurrentFont
+	fontName
+	loadFontFromStore
+	fontSize
+	logFont
+	loadDefault
+END
+
+CLASS TerminalKeyEvent
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+	implementorClass
+END
+INSTANCEMETHODS 
+BEGIN
+	isEnd
+	isHome
+	isNumericFunction
+END
+
+CLASS TerminalGraphicalObject
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+	getFontDataByName:
+	platformColorValueFor:
+END
+INSTANCEMETHODS 
+BEGIN
+END
+
+CLASS TerminalBasicController
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	keyCtrlC
+	keyCtrlCharacter:
+END
+
+CLASS TerminalKeyEventStMt
+INCLUDEDEF=1
+CLASSMETHODS *
+INSTANCEMETHODS *
+
+CLASS TWidgetAppearance
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	currentFontMetrics
+END
+
+CLASS TerminalImage
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	height
+	width
+	loadImage
+	release
+	primitiveDrawOn:gc:
+	file:
+	acceptsData
+	acceptsFileName
+	downloadedData:
+	downloadError:
+	hasImage
+	image
+	downloadError
+	isDownloadError
+END
+
+CLASS TerminalImageStub
+INCLUDEDEF=1
+CLASSMETHODS *
+INSTANCEMETHODS *
+
+CLASS TerminalInputController
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	keyCtrlV
+	keyCtrlC
+	pasteText
+	copyText
+	cutText
+END
+
+CLASS TerminalWidget
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	tabRequestedFrom:forward:
+	broadcast:with:
+	requestLocalUpdate
+END
+
+CLASS TerminalImageLabel
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	changedFont
+	aboutToRemoveFromTerminalForm:
+	url:
+	image
+	show
+	updateContentsIn:
+END
+
+CLASS UITerminalComponent
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+	terminalConstants
+END
+INSTANCEMETHODS 
+BEGIN
+	killBlinker
+	startBlinker
+	isDoubleClick:
+END
+
+CLASS Terminal
+INCLUDEDEF=1
+CLASSMETHODS *
+INSTANCEMETHODS *
+! !
+Object subclass: #TerminalButtonEvent
+	instanceVariableNames: 'x y isDoubleClick '
+	classVariableNames: ''
+	poolDictionaries: ''
+	comment: ''
+	category: ''!
+TerminalKeyEvent subclass: #TerminalKeyEventStMt
+	instanceVariableNames: 'isCharacter '
+	classVariableNames: ''
+	poolDictionaries: 'WinUserConstants '
+	comment: ''
+	category: ''!
+TerminalGraphicalObject subclass: #TerminalImageStub
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	comment: 'Should subclass TerminalImage'
+	category: ''!
+UITerminalComponent subclass: #Terminal
+	instanceVariableNames: 'drawable graphicalObjects manualClose '
+	classVariableNames: 'CurrentFontMetrics ImageClass '
+	poolDictionaries: ''
+	comment: ''
+	category: ''!
+
+!Rectangle Operations methods 10:51 - 03/12/04!
+intersectOrLine: operand
+
+	"Answer a rectangle which is the area in which the receiver overlaps with operand."
+
+	^(self origin maxPoint: operand origin)
+		corner: (self corner minPoint: operand corner)! !
+
+!TerminalButtonEvent * methods 11:14 - 09/30/04!
+doubleClick
+	^isDoubleClick! !
+
+!TerminalButtonEvent * methods 11:14 - 09/30/04!
+doubleClick: boolean
+	isDoubleClick := boolean! !
+
+!TerminalButtonEvent * methods 11:13 - 09/30/04!
+x
+	^x! !
+
+!TerminalButtonEvent * methods 11:13 - 09/30/04!
+x: newX
+	x := newX! !
+
+!TerminalButtonEvent * methods 11:14 - 09/30/04!
+y
+	^y! !
+
+!TerminalButtonEvent * methods 11:14 - 09/30/04!
+y: newY
+	y := newY! !
+
+!TerminalDialog Dialogs methods 11:41 - 11/11/04!
+errorDialog
+	| userResponse |
+	userResponse := MessageBox owner: NULL
+		text: self text
+		title: 'Error'
+		style: 0 "MB_OK" | 16 "MB_ICONERROR" | 8192 "MB_TASKMODAL" "let's hope MS never changes this ".
+	^self yesPressed! !
+
+!TerminalDialog Dialogs methods 11:42 - 11/11/04!
+infoDialog
+	| userResponse |
+	userResponse := MessageBox owner: NULL
+		text: self text
+		title: 'Information'
+		style: 0 "MB_OK" | 64 "MB_ICONINFORMATION" | 8192 "MB_TASKMODAL" "let's hope MS never changes this ".
+	^self yesPressed! !
+
+!TerminalDialog Dialogs methods 11:42 - 11/11/04!
+okCancelDialog
+	| userResponse |
+	userResponse := MessageBox owner: NULL
+		text: self text
+		title: 'OK?'
+		style: 1 "MB_OKCANCEL" | 32 "MB_ICONQUESTION" | 8192 "MB_TASKMODAL" "let's hope MS never changes this ".
+	(userResponse = 2 "CANCEL") 	ifTrue: [ ^self cancelPressed ].
+	(userResponse = 1 "OK") 		ifTrue: [ ^self yesPressed ].
+	" should reach this point "! !
+
+!TerminalDialog Dialogs methods 11:42 - 11/11/04!
+okDialog
+	| userResponse |
+	userResponse := MessageBox owner: NULL
+		text: self text
+		title: 'Information'
+		style: 0 "MB_OK" | 8192 "MB_TASKMODAL" "let's hope MS never changes this ".
+	^self yesPressed! !
+
+!TerminalDialog Dialogs methods 11:42 - 11/11/04!
+warnDialog
+	| userResponse |
+	userResponse := MessageBox owner: NULL
+		text: self text
+		title: 'Warning'
+		style: 0 "MB_OK" | 48 "MB_ICONWARNING" | 8192 "MB_TASKMODAL" "let's hope MS never changes this ".
+	^self yesPressed! !
+
+!TerminalDialog Dialogs methods 11:42 - 11/11/04!
+yesNoCancelDialog
+	| userResponse |
+	userResponse := MessageBox owner: NULL
+		text: self text
+		title: 'Question'
+		style: 3 "MB_YESNOCANCEL" | 32 "MB_ICONQUESTION" | 8192 "MB_TASKMODAL" "let's hope MS never changes this ".
+	(userResponse = 2 "CANCEL") 	ifTrue: [ ^self cancelPressed ].
+	(userResponse = 7 "NO") 		ifTrue: [ ^self noPressed ].
+	(userResponse = 6 "YES") 		ifTrue: [ ^self yesPressed ].
+	" should reach this point "! !
+
+!TerminalFontMetrics class publicMethods methods 11:21 - 11/15/04!
+default 
+	| instance |
+	instance := self new.
+	instance loadDefault.
+	^instance.! !
+
+!TerminalFontMetrics class publicMethods methods 08:39 - 04/22/04!
+initializeAvailable
+
+	self addIfAvailable: ( TerminalFontMetrics new  label: 'Lucida Console' ; fontName: 'Lucida Console' ) "loadFont".
+"	self addIfAvailable: ( TerminalFontMetrics new  label: 'Courier 8' ; fontName: '-microsoft-courier new ce-medium-r-normal--11-80-96-96-m-0-microsoft-other' ).
+	self addIfAvailable: ( TerminalFontMetrics new  label: 'HVRaster 9' ; fontName: '-microsoft-hvraster-medium-r-normal--12-90-96-96-m-80-microsoft-oem' ).
+	self addIfAvailable: ( TerminalFontMetrics new  label: 'FixedSys 12' ; fontName: '-microsoft-fixedsys-medium-r-normal--12-90-96-96-m-80-iso8859-1' ).
+	self addIfAvailable: ( TerminalFontMetrics new  label: 'Terminal 14' ; fontName: '-microsoft-terminal-medium-r-normal--18-140-96-96-m-100-microsoft-oem' ).
+	self addIfAvailable: ( TerminalFontMetrics new  label: 'HVRaster 13' ; fontName: '-microsoft-hvraster-medium-r-normal--17-130-96-96-m-80-microsoft-oem' )"! !
+
+!TerminalFontMetrics publicMethods methods 04:40 - 06/16/04!
+computeMetrics           
+	" This method still needs some thinking "
+	" Personally, I suspect the HVRaster font to report incorrect values "
+
+	| metrics overhang guessedWidth avg max  | 
+	metrics := font metrics.
+	metrics isNil ifTrue: [   
+		" Guess.. (this is VERY wrong) "
+		'Warning: guessing font size, this is almost guaranteed to fail' echo.
+		self width: 8.
+		self height: 13.
+		^self
+	].
+	" This is an unofficial way works at least for fixed fonts and hopefully for many dynamic fonts"               
+	avg := metrics tmAveCharWidth.
+	max := metrics tmMaxCharWidth.
+	guessedWidth := avg. " Assume guessedWidth is equal to average (goes for FixedWidth). "
+	(avg = max) ifFalse: [
+		" This font is not fixed "
+		guessedWidth := ((avg * 1.7) < max) 
+			ifTrue: [ " max is absurd " (avg * 1.7) ceiling ]
+			ifFalse: [ " max is reasonable " max ] ].
+	self width: guessedWidth.
+
+	" Some fonts 'forget' to set tmExternalLeading, so hack it in "
+	" This only works when 1 is added to the y position when drawing the font "				
+	" bonusHeight := metrics tmExternalLeading = 0 ifTrue: [ 1 ] ifFalse: [ 0 ]."  
+	
+	
+	self height: metrics tmHeight + metrics tmExternalLeading +"Border"2 .
+	(overhang := metrics tmOverhang) = 0 ifFalse: [ ('Warning, overhang ',overhang asString,' !!') echo ].! !
+
+!TerminalFontMetrics publicMethods methods 11:16 - 11/15/04!
+font: newFont
+	" PRIVATE: do not call this direct "
+	" and if you do, call computeMetrics, too "
+
+	font := newFont.
+	self storeCurrentFont.! !
+
+!TerminalFontMetrics publicMethods methods 11:19 - 11/15/04!
+fontName
+	| stream |
+	stream := String new writeStream.
+	self font storeOn: stream.
+	^stream contents.! !
+
+!TerminalFontMetrics publicMethods methods 10:30 - 11/15/04!
+fontName: aFontName
+	" Defaults to point size 12 "
+	self loadFontByName: aFontName.! !
+
+!TerminalFontMetrics publicMethods methods 10:39 - 11/15/04!
+fontSize
+	^self font getPointSize! !
+
+!TerminalFontMetrics publicMethods methods 11:21 - 11/15/04!
+loadDefault
+	self loadFontFromStore.
+	self font isNil ifFalse: [ ^self ].
+	self loadFontByName: 'Lucida Console'.! !
+
+!TerminalFontMetrics publicMethods methods 10:39 - 11/15/04!
+loadFontByLogFont: loadLogFont
+
+	self font: (Font createFont: loadLogFont).
+	self computeMetrics! !
+
+!TerminalFontMetrics publicMethods methods 11:22 - 11/15/04!
+loadFontByName: loadFontName       
+	" Defaults to 12 points size "
+ 	self loadFontByName: loadFontName size: 12.! !
+
+!TerminalFontMetrics publicMethods methods 10:33 - 11/15/04!
+loadFontByName: loadFontName size: pointSize      
+
+	self font: (Font createFont: loadFontName size: pointSize).
+	self computeMetrics! !
+
+!TerminalFontMetrics publicMethods methods 08:41 - 03/02/05!
+loadFontFromStore
+	|registry logFont |
+"	registryValue := WinApplication regQueryValue: 'Software\\PhilemonWorks\\TypeWise' under: HKEY_CURRENT_USER 	valueName: 'font'.
+	registryValue isNil ifFalse: [ self loadFontByLogFont: registryValue ]."
+	logFont := LOGFONT localNew.
+	logFont reset.
+	registry := WinRegistry new topLevelKey: ''.
+	(registry loadBytes: 'Software\\PhilemonWorks\\TypeWise' valueName: 'font' under: HKEY_CURRENT_USER into: logFont) ifFalse: [ ^nil ].
+	self loadFontByLogFont: logFont.! !
+
+!TerminalFontMetrics publicMethods methods 11:07 - 11/15/04!
+logFont
+	| lf |
+	lf := LOGFONT new.
+	WINAPI GetObject: self font 
+		with: ##(LOGFONT sizeInBytes)
+		with: lf basicAddress.
+	^lf! !
+
+!TerminalFontMetrics publicMethods methods 10:33 - 11/15/04!
+logFont: aLogFont
+
+	self loadFontByLogFont: aLogFont.! !
+
+!TerminalFontMetrics publicMethods methods 12:27 - 04/22/04!
+release
+	font delete .
+	^super release! !
+
+!TerminalFontMetrics publicMethods methods 08:40 - 03/02/05!
+storeCurrentFont  
+	| registry |
+	"registryValue := WinApplication regQueryValue: 'Software\\PhilemonWorks\\TypeWise' under: HKEY_CURRENT_USER 	valueName: 'font'."
+	" WinApplication regStoreKey: 'Software\\PhilemonWorks\\TypeWise' under: HKEY_CURRENT_USER valueName: 'font' value: self logFont "
+	registry := WinRegistry new topLevelKey: ''.
+	registry saveFont: 'Software\\PhilemonWorks\\TypeWise' valueName: 'font' value: self font under: HKEY_CURRENT_USER.! !
+
+!TerminalFontMetrics publicMethods methods 02:35 - 05/28/04!
+validOrConfirm 
+	" Prompt to protect the user from his own stupidness by selecting a wrong font "
+
+	" Return: "
+	"	 nil - Cancel all font choice operations, user has aborted or error was thrown "
+	"    false - User has decided this font does not match his/her needs, try again "
+	"    true - This is the one... "
+	| metrics |
+	font isNil ifTrue: [ ^nil ].
+	metrics := font metrics.
+	metrics isNil ifTrue: [ ^nil ].
+	(metrics tmAveCharWidth = metrics tmMaxCharWidth) ifFalse: [
+		" This font is not fixed width "
+		| userResponse |
+		userResponse := MessageBox owner: NULL
+			text: 'The chosen font appears not to be a Fixed-Width font\n Using a Fixed-Width font may result in bad looks for this window.\n Are you sure you want to do this? (cancel will revert back to your original font)'  
+			title: 'Non fixed-width font selected'
+			style: 3 "MB_YESNOCANCEL" | 32 "MB_ICONQUESTION" "let's hope MS never changes this ". 
+		(userResponse = 2 "CANCEL") ifTrue: [ ^nil ].
+		(userResponse = 7 "NO") ifTrue: [ ^false ].
+	]. 
+	(metrics tmHeight > 30) ifTrue: [
+		" This font is LARGE "
+		| userResponse |
+		userResponse := MessageBox owner: NULL
+			text: 'The chosen font appears to be quite large\n Are you sure selecting this font is what you want (cancel will revert back to your original font)'  
+			title: 'Large font selected'
+			style: 3 "MB_YESNOCANCEL" | 32 "MB_ICONQUESTION" "let's hope MS never changes this ". 
+		(userResponse = 2 "CANCEL") ifTrue: [ ^nil ].
+		(userResponse = 7 "NO") ifTrue: [ ^false ]. 
+	].
+	
+	^true! !
+
+!TerminalKeyEvent class publicMethods methods 08:58 - 05/07/04!
+implementorClass
+	^TerminalKeyEventStMt! !
+
+!TerminalKeyEvent publicMethods methods 08:58 - 05/07/04!
+isEnd
+	self subclassResponsibility! !
+
+!TerminalKeyEvent publicMethods methods 08:58 - 05/07/04!
+isHome
+	self subclassResponsibility! !
+
+!TerminalKeyEvent publicMethods methods 08:59 - 05/07/04!
+isNumericFunction
+	self subclassResponsibility! !
+
+!TerminalGraphicalObject class publicMethods methods 05:24 - 03/25/04!
+getFontDataByName: fontName
+	" font, width, height "
+	^Array with: (Font createFont: 'Lucida Console' size: 12) with: 8 with: 13! !
+
+!TerminalGraphicalObject class publicMethods methods 02:54 - 03/12/04!
+platformColorValueFor: aColor
+	"Answer the color pixel value."
+                                                     
+	^aColor asInteger
+	"^self palette nearestPixelValue: aColor asRGBColor"! !
+
+!TerminalBasicController publicMethods methods 12:07 - 03/23/04!
+keyCtrlC
+	"copy"! !
+
+!TerminalBasicController publicMethods methods 12:46 - 07/01/04!
+keyCtrlCharacter: char
+	"To enable keybinding support for developper, an event is triggered by the widget.
+	The event name is composed.  control_<lowercase char>"
+
+	self promoteKeyEvent: ('control_' copyWith: char asLowercase) asSymbol.! !
+
+!TerminalKeyEventStMt class * methods 09:16 - 05/07/04!
+initializeCodeMap
+	self codeMap 
+		at: VK_HOME put: 'Home'
+		;at: VK_END put: 'End'
+		;at: VK_RIGHT put: 'Right'
+		;at: VK_LEFT put: 'Left'
+		;at: VK_INSERT put: 'Insert'
+		;at: VK_DELETE put: 'Delete'
+		;at: VK_NEXT put: 'PageDown'
+		;at: VK_PRIOR put: 'PageUp'
+		;at: VK_UP put: 'Up'
+		;at: VK_DOWN put: 'Down'
+		;at: 65505 put: 'Shift'
+		;at: 65511 put: 'Alt'
+		;at: 65507 put: 'Control'
+		;at: 65505 put: 'ControlShift'! !
+
+!TerminalKeyEventStMt * methods 02:43 - 09/06/04!
+character               
+	| chr |
+	chr := Character value: code .
+	self isAlt ifTrue: [ ^chr asLowerCase ].
+	^Character value: code! !
+
+!TerminalKeyEventStMt * methods 11:27 - 05/07/04!
+initializeFromOSEvent: OSevent isCharacter: boolean
+	isControl := (((WINAPI GetKeyState: VK_CONTROL) & 0x80) = 0) not.
+	isShift := (((WINAPI GetKeyState: VK_SHIFT)  & 0x80) = 0) not. 
+	isAlt := false.
+	code := OSevent.
+	isCharacter := boolean! !
+
+!TerminalKeyEventStMt Testing methods 11:58 - 05/07/04!
+isAlt
+	isCharacter ifTrue: [ ^false ].
+	^code == VK_MENU! !
+
+!TerminalKeyEventStMt Testing methods 10:41 - 05/07/04!
+isBackspace      
+	isCharacter ifTrue: [ ^false ].
+	^code == VK_BACK! !
+
+!TerminalKeyEventStMt Testing methods 11:23 - 05/07/04!
+isCharacter
+	isCharacter ifTrue: [ ^true ].
+	isControl ifFalse: [ ^false ].
+	self isValidAscii ifTrue: [ ^true ].
+	^false.! !
+
+!TerminalKeyEventStMt Testing methods 11:59 - 05/07/04!
+isControl
+	isCharacter ifTrue: [ ^false ].
+	^code = VK_CONTROL! !
+
+!TerminalKeyEventStMt Testing methods 10:41 - 05/07/04!
+isDelete
+	isCharacter ifTrue: [ ^false ].
+	^code == VK_DELETE! !
+
+!TerminalKeyEventStMt Testing methods 10:42 - 05/07/04!
+isDown
+	isCharacter ifTrue: [ ^false ].
+	^code == VK_DOWN! !
+
+!TerminalKeyEventStMt Testing methods 10:42 - 05/07/04!
+isEnd
+	isCharacter ifTrue: [ ^false ].
+	^code == VK_END! !
+
+!TerminalKeyEventStMt Testing methods 10:42 - 05/07/04!
+isEnter
+	isCharacter ifTrue: [ ^false ].
+	^code == VK_RETURN! !
+
+!TerminalKeyEventStMt Testing methods 10:42 - 05/07/04!
+isEsc
+	isCharacter ifTrue: [ ^false ].
+	^code == VK_CANCEL! !
+
+!TerminalKeyEventStMt Testing methods 10:42 - 05/07/04!
+isHome
+	isCharacter ifTrue: [ ^false ].
+	^code == VK_HOME! !
+
+!TerminalKeyEventStMt Testing methods 10:42 - 05/07/04!
+isInsert
+	isCharacter ifTrue: [ ^false ].
+	^code == VK_INSERT! !
+
+!TerminalKeyEventStMt Testing methods 10:42 - 05/07/04!
+isLeft
+	isCharacter ifTrue: [ ^false ].
+	^code == VK_LEFT! !
+
+!TerminalKeyEventStMt Testing methods 10:42 - 05/07/04!
+isNumericFunction
+	isCharacter ifTrue: [ ^false ].
+	^(code between: VK_F1 and: VK_F24) "F1..F12..?"! !
+
+!TerminalKeyEventStMt Testing methods 10:42 - 05/07/04!
+isPageDown
+	isCharacter ifTrue: [ ^false ].
+	^code = VK_NEXT! !
+
+!TerminalKeyEventStMt Testing methods 10:42 - 05/07/04!
+isPageUp
+	isCharacter ifTrue: [ ^false ].
+	^code = VK_PRIOR! !
+
+!TerminalKeyEventStMt Testing methods 10:42 - 05/07/04!
+isRight
+	isCharacter ifTrue: [ ^false ].
+	^code = VK_RIGHT! !
+
+!TerminalKeyEventStMt Testing methods 10:43 - 05/07/04!
+isShift
+	isCharacter ifTrue: [ ^false ].
+	^code = VK_SHIFT! !
+
+!TerminalKeyEventStMt Testing methods 10:43 - 05/07/04!
+isTab
+	isCharacter ifTrue: [ ^false ].
+	^code = VK_TAB! !
+
+!TerminalKeyEventStMt Testing methods 10:43 - 05/07/04!
+isUp
+	isCharacter ifTrue: [ ^false ].
+	^code = VK_UP! !
+
+!TerminalKeyEventStMt Testing methods 10:31 - 05/07/04!
+isValidAscii
+	^(32 to: 128) includes: code! !
+
+!TerminalKeyEventStMt Testing methods 10:40 - 05/07/04!
+isValidScanCode
+	^true "Everything is scancode (for now) :( "! !
+
+!TerminalKeyEventStMt Testing methods 09:14 - 05/07/04!
+numericFunctionCode
+	^code - VK_F1 + 1! !
+
+!TWidgetAppearance publicMethods methods 02:43 - 04/09/04!
+currentFontMetrics
+	^Terminal currentFontMetrics! !
+
+!TerminalImage publicMethods methods 01:30 - 06/08/04!
+acceptsData
+	^true! !
+
+!TerminalImage publicMethods methods 01:30 - 06/08/04!
+acceptsFileName
+	^false! !
+
+!TerminalImage publicMethods methods 08:51 - 10/05/04!
+downloadedData: downloaded
+	|data tmpImage contentString | 
+	((downloaded isNil) or: [ downloaded isEmpty ]) ifTrue: [ self downloadError: 'No contents '. ^nil ].
+	contentString := downloaded asString.
+	(contentString beginsWith: '<htm') |
+	(contentString beginsWith: '<HTM') |
+	(contentString beginsWith: '<!!') ifTrue: [ self downloadError: 'Not image format: '. ^nil ].
+	
+	Logger debug: [ '-- Creating Data IStream object for image' ].
+	data := IStream createStreamOnHGlobal.
+	data nextPutAll: downloaded.
+
+	Logger debug: [ '-- Creating GdiPlusBitmap for image ' ].	
+	" Create bitmap "
+	tmpImage := GdiplusBitmap new.
+	tmpImage createImageOnIStream: data useEmbeddedColorManagement: false. " Access Violation "
+	data Release.
+	((tmpImage asInteger = 0x0) or: [ tmpImage getType = 0 " ImageTypeUnknown (cannot add pool to this class)" ] ) 
+		ifTrue: [ tmpImage delete. image := nil ]
+		ifFalse: [ image := tmpImage " Set image to be downloaded image ". dirty := true. " set dirty to repaint "].
+	Logger debug: [ '-- Image created, requesting update' ].
+	self widget isNil ifFalse: [ 
+		self widget requestLocalUpdate. ].! !
+
+!TerminalImage publicMethods methods 08:44 - 06/24/04!
+downloadError
+	image isNil ifTrue: [ ^'' ].
+	image isString ifFalse: [ ^'' ].
+	^image! !
+
+!TerminalImage publicMethods methods 08:31 - 06/24/04!
+downloadError: aString  
+	" error := aString. "
+	image := aString.! !
+
+!TerminalImage publicMethods methods 09:55 - 11/02/04!
+file: anObject
+	file isNil ifFalse: [ FileDownloader cancelDownloadWithNotifyObject: self ].
+	image := nil.
+	(anObject isNil or: [ anObject isEmpty ]) 
+		ifFalse: [ file := anObject. FileDownloader downloadFrom: file notifyObject: self ]
+		ifTrue: [ file := nil ].! !
+
+!TerminalImage publicMethods methods 08:42 - 06/24/04!
+hasImage
+	^image notNil and: [ image isString not ]! !
+
+!TerminalImage publicMethods methods 10:56 - 03/30/04!
+height
+	^self hasImage
+		ifTrue: [ self image getHeight ]
+		ifFalse:[ 4 ]! !
+
+!TerminalImage publicMethods methods 08:38 - 06/24/04!
+image
+	self hasImage ifFalse: [ ^nil ].
+	^image! !
+
+!TerminalImage publicMethods methods 08:44 - 06/24/04!
+isDownloadError
+	image isNil ifTrue: [ ^false ].
+	image isString ifTrue: [ ^true ].
+	^false! !
+
+!TerminalImage publicMethods methods 01:19 - 06/08/04!
+loadImage
+	" Do nothing, image download should have been started already "
+	" See references to FileDownloader "! !
+
+!TerminalImage publicMethods methods 10:31 - 10/04/04!
+primitiveDrawOn: aDrawable gc: gc 
+	self hasImage ifTrue:[ | res |
+		aDrawable fillRectangle: gc x: self box left y: self box top width: self box width height: self box height.
+		Logger debug: [ '-- Starting image drawing' ].
+		Logger debug: [ '--   image: ', self image asString ].
+		res := aDrawable 
+			putDeviceIndependentImage: gc 
+			image: self image                   
+			srcRect: (0@0 extent: (self width min: box width) @ (self height min: box height))
+			destRect: self box.
+		Logger debug: [ '-- Image shown on screen' ].
+		^res].
+	"draw cross and display missing file"
+	gc setForeground: 15.
+	aDrawable drawRectangle: gc x: self box left y: self box top width: self box width - 1 height: self box height - 1.
+	self isDownloadError ifTrue: [ 
+		aDrawable drawLine: gc x1: self box left y1: self box top x2: self box right - 1 y2: self box bottom - 1.
+		aDrawable drawLine: gc x1: self box left y1: self box bottom - 1 x2: self box right - 1 y2: self box top.
+		aDrawable drawString: gc boundedBy: self box string: self downloadError, (self file asString).
+	]! !
+
+!TerminalImage publicMethods methods 09:50 - 10/05/04!
+release
+	Logger debug: '-- Releasing image'.
+	" Cancel all pending downloads for this object "
+	FileDownloader cancelDownloadWithNotifyObject: self.
+	
+	" Free window handle for this image " 
+	image isNil ifFalse: [ 
+		image isString ifFalse: [ image delete ].
+		image := nil. ].
+	Logger debug: '-- Released image'.! !
+
+!TerminalImage publicMethods methods 08:33 - 06/24/04!
+width
+	^self hasImage
+		ifTrue: [ self image getWidth ]
+		ifFalse:[ 4 ]! !
+
+!TerminalImageStub class * methods 08:36 - 10/05/04!
+for: aWidget
+	^self new! !
+
+!TerminalImageStub * methods 12:18 - 07/23/04!
+acceptsData
+	^true! !
+
+!TerminalImageStub * methods 12:18 - 07/23/04!
+acceptsFileName
+	^false! !
+
+!TerminalImageStub * methods 12:18 - 07/23/04!
+downloadedData: downloaded! !
+
+!TerminalImageStub * methods 12:19 - 07/23/04!
+downloadError
+	^'GDIPlus inactive'! !
+
+!TerminalImageStub * methods 12:19 - 07/23/04!
+downloadError: aString! !
+
+!TerminalImageStub * methods 12:19 - 07/23/04!
+file! !
+
+!TerminalImageStub * methods 12:19 - 07/23/04!
+file: aFile! !
+
+!TerminalImageStub * methods 12:19 - 07/23/04!
+hasImage
+	^false! !
+
+!TerminalImageStub * methods 12:20 - 07/23/04!
+height     
+	" ? "
+	^1! !
+
+!TerminalImageStub * methods 12:20 - 07/23/04!
+image
+	^nil! !
+
+!TerminalImageStub * methods 12:20 - 07/23/04!
+image: anImage! !
+
+!TerminalImageStub * methods 12:20 - 07/23/04!
+initializeBox: width height: height at: theLocation! !
+
+!TerminalImageStub * methods 12:20 - 07/23/04!
+initializeImageBox: width height: height at: theLocation! !
+
+!TerminalImageStub * methods 12:21 - 07/23/04!
+isDownloadError
+	^false! !
+
+!TerminalImageStub * methods 12:21 - 07/23/04!
+loadImage! !
+
+!TerminalImageStub * methods 12:21 - 07/23/04!
+location: aValue appearance: anAppearance! !
+
+!TerminalImageStub * methods 12:21 - 07/23/04!
+primitiveDrawOn: aDrawable gc: gc! !
+
+!TerminalImageStub * methods 02:40 - 09/09/04!
+redraw
+	self localUpdate! !
+
+!TerminalImageStub * methods 12:21 - 07/23/04!
+release! !
+
+!TerminalImageStub * methods 02:40 - 09/09/04!
+scaleToFit
+	^true! !
+
+!TerminalImageStub * methods 02:40 - 09/09/04!
+scaleToFit: aBool! !
+
+!TerminalImageStub * methods 12:22 - 07/23/04!
+width
+	^1! !
+
+!TerminalInputController publicMethods methods 12:00 - 07/01/04!
+copyText
+	"copy"
+	| output |
+	output := self widget string.
+	output isNil ifFalse: [
+		Terminal setClipboard: output ].! !
+
+!TerminalInputController publicMethods methods 07:39 - 07/06/04!
+cutText
+	self copyText.
+	self widget string: ''.! !
+
+!TerminalInputController publicMethods methods 12:01 - 07/01/04!
+keyCtrlC
+	self copyText.! !
+
+!TerminalInputController publicMethods methods 12:01 - 07/01/04!
+keyCtrlV
+	self pasteText.! !
+
+!TerminalInputController publicMethods methods 07:43 - 07/06/04!
+pasteText
+	"paste"
+	| data|
+	data := Terminal getClipboard.
+	(data isNil or: [ data isEmpty ]) ifFalse: [ self widget paste: data ].! !
+
+!TerminalWidget publicMethods methods 03:36 - 03/08/04!
+broadcast: trigger with: argument
+	self triggerEvent: trigger with: argument! !
+
+!TerminalWidget publicMethods methods 10:11 - 10/05/04!
+requestLocalUpdate
+	self form isNil ifFalse: [ self form requestLocalUpdateFor: self ].! !
+
+!TerminalWidget publicMethods methods 01:19 - 03/11/04!
+tabRequestedFrom: aWidget  forward: forward
+
+	self visible 
+		ifTrue: [ self wantsFocusOnTab 
+			ifTrue: [ self form setFocusWidget: self. ^true ]
+		].
+	^false! !
+
+!TerminalImageLabel publicMethods methods 07:21 - 10/24/05!
+aboutToRemoveFromTerminalForm: aForm 
+
+	super aboutToRemoveFromTerminalForm: aForm.
+	aForm grid 
+		charactersInBounds: self bounds 
+		do: [ :char | char visible: true ].
+	"image is nil when it could not be loaded or was not specified"
+	image isNil
+		ifFalse:
+			[aForm graphics removeGO: self image fromLayer: 1.
+			self image release].! !
+
+!TerminalImageLabel publicMethods methods 09:37 - 11/02/04!
+changedFont
+	image isNil ifFalse: [ image location: self bounds appearance: self image appearance ].! !
+
+!TerminalImageLabel publicMethods methods 07:02 - 10/24/05!
+image
+    "STMT postload"
+	image isNil 
+		ifTrue: 
+			[ image := Terminal imageClass for: self.
+			image file: self url context: self form contextURL.
+			image scaleToFit: self scaleToFit].
+	^image! !
+
+!TerminalImageLabel publicMethods methods 08:32 - 10/01/04!
+show
+	super show.
+	self image. " initialize image "! !
+
+!TerminalImageLabel publicMethods methods 09:38 - 11/02/04!
+updateContentsIn: region
+	super updateContentsIn: region.
+	self image redraw.! !
+
+!TerminalImageLabel publicMethods methods 12:53 - 09/06/04!
+url: anObject 
+	url = anObject 
+		ifTrue: [ ^self ].
+	url := anObject.
+	image isNil ifFalse: [ image file: anObject ].
+	self markDirty: TMURLSet! !
+
+!UITerminalComponent class * methods 10:36 - 03/10/04!
+terminalConstants
+	^Compiler getPoolDictionary: 'TerminalConstants' asStringA.! !
+
+!UITerminalComponent publicMethods methods 11:30 - 09/30/04!
+isDoubleClick: event
+	^event doubleClick! !
+
+!UITerminalComponent publicMethods methods 01:29 - 03/19/04!
+killBlinker
+	blinker isNil
+		ifFalse: 
+			[ 	WINAPI KillTimer: m_handle with: blinker.
+				blinker := nil. ].! !
+
+!UITerminalComponent publicMethods methods 01:24 - 03/19/04!
+startBlinker
+	blinker := 10.
+	WINAPI SetTimer: m_handle with: blinker with: 400 with: NULL.
+
+"	blinker := 	WinThread fromHandle: [ [ self toggleHighlightCursor. Processor sleep: 200. blinker ] repeat ] fork.	"
+"	self stopBlinker.
+	blinker := [[self toggleHighlightCursor.(Delay forSeconds: 0.2) wait]repeat] fork"! !
+
+!Terminal class * methods 02:27 - 05/28/04!
+chooseFont
+	| chosen metrics response |            
+	chosen := (self currentFontMetrics font).
+	[ 
+		chosen := FontDialog new setFont: chosen; open.
+		chosen isNil ifTrue: [ ^false ].
+		metrics := (TerminalFontMetrics new logFont: chosen).	
+		response := metrics validOrConfirm. 
+		response isNil ifTrue: [ ^false ].
+		response.
+	] whileFalse.
+	self currentFontMetrics: metrics. 
+	^true! !
+
+!Terminal class * methods 11:22 - 11/15/04!
+currentFontMetrics
+	^CurrentFontMetrics ifNil: [ ^CurrentFontMetrics := TerminalFontMetrics default ]! !
+
+!Terminal class * methods 12:28 - 04/22/04!
+currentFontMetrics: aTerminalFontMetrics
+	| old |
+	" This is a tricky operation, CurrentFontMetrics should always be a valid font "
+	old := CurrentFontMetrics.
+	CurrentFontMetrics := aTerminalFontMetrics.
+	old isNil ifFalse: [ old release ].! !
+
+!Terminal class * methods 02:20 - 07/01/04!
+getClipboard
+	| clipData data|
+	clipData := IDataObject oleGetClipBoard.
+	data := clipData GetData: CF_TEXT.
+	clipData Release.
+	data isNil ifTrue: [ data = String new ].
+	^data! !
+
+!Terminal class * methods 12:14 - 07/23/04!
+imageClass
+	ImageClass isNil ifTrue: [
+		self imageClass: TerminalImage
+	].
+	^ImageClass! !
+
+!Terminal class * methods 12:15 - 07/23/04!
+imageClass: aClass
+	ImageClass := aClass.! !
+
+!Terminal class * methods 03:09 - 05/10/04!
+initialize
+	super initialize.
+	self addHandler: ID_SELECT selector: #changeFont.
+	self addHandler: ID_PROPERTIES selector: #changeFont.! !
+
+!Terminal class * methods 11:11 - 04/26/04!
+release
+	self currentFontMetrics: nil.
+	^super release! !
+
+!Terminal class * methods 02:20 - 07/01/04!
+setClipboard: data
+	| clipData |     
+	IDataObject emptyClipboard.
+	clipData := IDataObject new data: data.
+	clipData oleSetClipBoard.
+	IDataObject closeClipboard! !
+
+!Terminal class * methods 11:28 - 09/23/04!
+windowClassIcon
+	^IDI_APP! !
+
+!Terminal class * methods 02:22 - 05/10/04!
+windowClassName
+	^'TypeWiseTerminal'! !
+
+!Terminal class * methods 05:44 - 10/18/04!
+windowClassStyle
+	"
+	Answers the class style for this window class.
+	Return Value: 
+		The default implementation specifies that the entire window is to be
+		redrawn if the size of the window changes.
+	"
+	^CS_BYTEALIGNCLIENT|CS_BYTEALIGNWINDOW|CS_DBLCLKS|CS_CLASSDC! !
+
+!Terminal * methods 10:28 - 03/30/04!
+addGO: aGO toLayer: layer visible: vis
+	self graphicalObjects add: aGO.
+	self addGraphicalObject: aGO.! !
+
+!Terminal * methods 09:38 - 03/05/04!
+addGraphicalObject: aGraphicalObject
+	aGraphicalObject parent: self.
+	"aGraphicalObject openWindowIn: self graphics"! !
+
+!Terminal Event Handling methods 07:32 - 10/06/04!
+changeFont
+
+	self class chooseFont  "return true if the font has changed" 
+		ifTrue: 
+			[ self installFont.
+			self grid reInitializeBoxes: self class.
+			self screen widgetsDo: [ :each | each changedFont ].
+			self checkViewExtent.
+			self redraw.
+			]! !
+
+!Terminal * methods 09:09 - 04/05/04!
+checkViewExtent
+	| extent |
+
+	extent := self windowSize.  
+	extent isNil ifTrue: [ ^nil ].
+	self setWindowExtent: extent.! !
+
+!Terminal * methods 08:35 - 10/18/04!
+close
+	manualClose := false.
+	super close.! !
+
+!Terminal * methods 07:09 - 10/24/05!
+contextURL
+	"Return the absolute URL of the context of the service"
+	^self messageHandler contextURL! !
+
+!Terminal * methods 11:21 - 10/18/04!
+drawable
+	drawable isNil ifTrue: [ 
+		drawable := CgDrawable for: (DeviceContext fromHandle: self getDC). 
+	 ].
+	self initializeDrawable: drawable.
+	^drawable! !
+
+!Terminal * methods 01:32 - 03/30/04!
+drawOn: hDC     
+	|drawInterface |
+	drawInterface := CgDrawable for: hDC.
+	self initializeDrawable: drawInterface.
+	grid ifNotNil: [ :drawGrid | drawGrid charactersDo: [ :char | char primitiveDrawOn: drawInterface gc: drawInterface ] ].
+	graphicalObjects ifNotNil: [ :gObjects | gObjects do: [ :each | each primitiveDrawOn: drawInterface gc: drawInterface ] ]. 
+	drawInterface release.! !
+
+!Terminal * methods 10:25 - 03/30/04!
+graphicalObjects
+	graphicalObjects isNil ifTrue: [ graphicalObjects := OrderedCollection new ].
+	^graphicalObjects! !
+
+!Terminal * methods 09:39 - 03/10/04!
+graphics
+                         
+	^self! !
+
+!Terminal * methods 10:41 - 10/18/04!
+initializeDrawable: aDrawable
+	aDrawable setFont: self class currentFontMetrics font.! !
+
+!Terminal * methods 09:25 - 04/05/04!
+initPosition
+	"
+	Answers the initial window position.
+	Return Value: 
+		A WinRectangle with the initial coordinates and sizes of the window, or nil
+		if the information is not available.
+	Remarks:
+	The default implementation loads the position from the registry, using the property
+	at #profile and the value name 'POSITION'.
+	"
+	| extent |  
+	extent := self windowSize.
+	extent isNil ifTrue: [ ^50@50 ].
+	^extent! !
+
+!Terminal * methods 07:25 - 05/24/05!
+initWindow
+  	" Init default values "
+  	manualClose := true.  
+  
+	" Initialize window settings "
+	
+	" Like font "
+	self installFont.
+	
+	" System menu "
+	self getSystemMenu 
+		insertItem: NULL text: NULL fType: MFT_SEPARATOR before: -1;
+		" insertItem: ID_SELECT text: '&Service...' fType: MFT_STRING before: -1; 
+		insertItem: NULL text: NULL fType: MFT_SEPARATOR before: -1; "
+		insertItem: ID_PROPERTIES text: 'Change &font...' fType: MFT_STRING before: -1; 
+		insertItem: ID_APP_ABOUT text: '&About...' fType: MFT_STRING before: -1.
+		
+	self enableItem: ID_SELECT state: true.
+	self enableItem: ID_PROPERTIES state: true.
+	self enableItem: ID_APP_ABOUT state: true.
+		
+	" Statusbar " 
+	(StatusWindow new openWindowIn: self) 
+		setCharParts: #(-1 -8 -1).
+		
+	" Too bad initWindow gets called after initPos. We'll have to 
+	  check for resize (for statusbar) "
+	self checkViewExtent.  
+	self setWindowText: self title.
+	^super initWindow.! !
+
+!Terminal * methods 10:44 - 10/18/04!
+installFont
+	self setFont: self class currentFontMetrics font.
+	" drawable isNil ifFalse: [ drawable setFont: self class currentFontMetrics font ]. "! !
+
+!Terminal * methods 08:35 - 10/18/04!
+isManualClose
+	manualClose isNil ifTrue: [ manualClose := true ].
+	^manualClose! !
+
+!Terminal * methods 10:16 - 09/06/04!
+isOpened
+	^(self handle == NULL or: [ self handle isNil ]) not! !
+
+!Terminal * methods 08:49 - 10/06/04!
+notify: aString
+	self statusBar ifNotNil: [ :sb | sb setItemText: 2 text: aString ].! !
+
+!Terminal * methods 12:38 - 03/17/04!
+open
+	" Name clash: this method is implemented such as the cwic terminal system expects it
+		to. StMt though, will expect this method to create a windows window. This is done
+		in openWidget that gets called here. "
+	self isOpened ifFalse: [ self openWidget . ]! !
+
+!Terminal * methods 10:37 - 03/10/04!
+overDrawGC
+	^self drawable! !
+
+!Terminal UI Access methods 04:00 - 03/19/04!
+redraw
+	self updateClientRect! !
+
+!Terminal * methods 04:54 - 04/05/04!
+removeGO: aGO fromLayer: aLayer 
+	self graphicalObjects remove: aGO ifNone: [ ].
+	self removeGraphicalObject: aGO! !
+
+!Terminal * methods 05:01 - 04/05/04!
+removeGraphicalObject: tc
+	tc parent: nil
+	" self graphics ifNotNil:[ :gp | gp removeGO: tc fromLayer: 1]"! !
+
+!Terminal * methods 07:41 - 10/05/04!
+requestLocalUpdateFor: aWidget
+	" Called by a thread that should not update itself "
+	" Posts a Window message to the message queue and continues "
+	" Message will be handled later by main thread "
+	self postMessage: WM_APP with: aWidget name basicAddress with: 0.! !
+
+!Terminal Event Handling methods 02:34 - 05/10/04!
+selectService 
+	'Open dialog' echo.
+	^DialogBox new dialogBox: m_module template: IDD_DIALOG1 owner: self! !
+
+!Terminal * methods 02:44 - 09/30/04!
+show: aScreen
+	super show: aScreen.
+	self checkViewExtent.
+
+	"self title: aScreen title asString"! !
+
+!Terminal * methods 08:49 - 10/06/04!
+status: aStatusString
+	self statusBar ifNotNil: [ :sb | sb setItemText: 1 text: aStatusString ].! !
+
+!Terminal * methods 01:44 - 03/29/04!
+statusBar
+	" Return the statuswindow or nil if none exists "
+	^(self childAt: ID_STATUSWINDOW)! !
+
+!Terminal * methods 08:45 - 10/06/04!
+title: aTitleString  
+	aTitleString isNil ifTrue: [ aTitleString := '' ].
+	(aTitleString = nil asString) ifTrue: [ aTitleString := '' ].
+	^super title: aTitleString! !
+
+!Terminal * methods 10:36 - 03/10/04!
+window
+	^self drawable! !
+
+!Terminal UI Access methods 08:59 - 09/10/04!
+windowExStyle
+	^WS_EX_CONTEXTHELP! !
+
+!Terminal * methods 09:16 - 04/05/04!
+windowSize     
+	" Answer to what point the window should be resized. This is computed by
+	  calculating how much space is needed for the greed (screen widget), 
+	  adding the height of the statusbar, and, finally, adding the window
+	  borders (depends on the window style). "
+	| drawArea statusHeight rectangle |
+
+	" Pre: screen should be non-nil "
+	screen isNil ifTrue: [ ^nil ].
+	                  
+	" Space needed for grid "
+	drawArea := self screen displayExtent.
+	
+	" Space needed for status "
+	self statusBar isNil ifFalse: 
+	[ 	statusHeight := (self getItemRect: self statusBar defaultID) height.
+		drawArea := drawArea + (0@ statusHeight ) 
+	].
+	
+	" Space needed for borders and window style things "
+	rectangle := WinRectangle origin: 0@0 extent: drawArea.
+	rectangle adjustWindowRect: self windowStyle exStyle: self windowExStyle hasMenu: false.
+	
+	" That's it "
+	^rectangle extent! !
+
+!Terminal UI Access methods 09:26 - 04/05/04!
+windowStyle
+	^WS_SYSMENU|WS_CAPTION|WS_BORDER|WS_OVERLAPPED|WS_VISIBLE|WS_MINIMIZEBOX! !
+
+!Terminal * methods 09:37 - 06/03/04!
+windowTitle
+	^NULL! !
+
+!Terminal .CALLBACK methods 10:16 - 10/05/04!
+WM_APP: wparam with: lparam
+	| targetWidgetName targetWidget |
+
+	targetWidgetName := String fromAddress: wparam.	
+	Logger debug: [ 'WM_APP for: ', targetWidgetName ].
+	targetWidget := self screen findWidgetNamed: targetWidgetName.
+	targetWidget isNil 
+		ifFalse: [ 
+		 	Logger debug: [ 'Localupdate for widget: ', targetWidget asString ].
+			targetWidget update. ].
+	
+	""! !
+
+!Terminal .CALLBACK methods 10:41 - 05/07/04!
+WM_CHAR: wparam with: lparam
+	| event |
+	event := TerminalKeyEvent implementorClass singleton.
+	event initializeFromOSEvent: wparam isCharacter: true.
+    event isValidAscii ifFalse: [ ^false ].
+	self handleKeyEvent: event       .
+	^true! !
+
+!Terminal .CALLBACK methods 08:42 - 10/18/04!
+WM_CLOSE: wparam with: lparam
+	self isManualClose ifTrue: [
+		((MessageBox owner: NULL text: 'This will exit TypeWise application "', self title, '"' title: 'Confirm Exit' style: MB_OKCANCEL | MB_ICONWARNING) = IDOK) 
+		ifTrue: [
+			^super WM_CLOSE: wparam with: lparam
+		].
+	] ifFalse: [
+		^super WM_CLOSE: wparam with: lparam
+	].
+	^TRUE! !
+
+!Terminal .CALLBACK methods 10:39 - 10/18/04!
+WM_DESTROY: wparam with: lparam
+	self messageHandler isNil ifFalse: [ self messageHandler aboutToClose ].
+	self hideScreen.
+	drawable isNil ifFalse: [ drawable release. drawable := nil ].
+	graphicalObjects isNil ifFalse: [ graphicalObjects do: [ : each | each release ]. graphicalObjects := nil ].
+	messageHandler isNil ifFalse: [ messageHandler close. messageHandler := nil ].
+	" Flush image cache - temp fix, images have been deleted already "
+	self class imageClass release.
+	
+	" For this, terminal cannot have multiple instances "
+	FileDownloader release.
+	^super WM_DESTROY: wparam with: lparam! !
+
+!Terminal .CALLBACK methods 09:11 - 09/10/04!
+WM_ERASEBKGND: hdc with: lparam
+	"
+	Private - Defeat this message because we're drawing on WM_PAINT.
+	This message is sent when the window background must be erased. 
+	Parameters
+		hdc    Identifies the device context. 
+	Return Value:
+		Non-zero if the application erases the background; otherwise zero. 
+	Remarks
+	The DefWindowProc function erases the background by using the class background 
+	brush specified by the hbrBackground member of the WNDCLASS structure. 
+	If hbrBackground is NULL, the application should process the WM_ERASEBKGND 
+	message and erase the background. 
+	"
+	^1! !
+
+!Terminal .CALLBACK methods 10:28 - 05/07/04!
+WM_KEYDOWN: wparam with: lparam
+	| event |
+	event := TerminalKeyEvent implementorClass singleton.
+	event initializeFromOSEvent: wparam isCharacter: false.
+    event isValidScanCode ifFalse: [ ^false ].
+	self handleKeyEvent: event  .
+	^true! !
+
+!Terminal .CALLBACK methods 08:40 - 10/06/04!
+WM_LBUTTONDBLCLK: fwKeys with: lparam
+	"
+	Private - Processes the WM_LBUTTONDBLCLK message. 
+	Parameters: 
+		fwKeys    Key flags 
+		lParam    Position of the mouse cursor.
+	Return Value:
+		Always FALSE.
+	Remarks:
+	The WM_LBUTTONDBLCLK message is posted when the user double-clicks 
+	he left mouse button while the cursor is in the client area of a window. If the mouse 
+	s not captured, the message is posted to the window beneath the cursor. 
+	Otherwise, the message is posted to the window that has captured the mouse. 
+	"
+	| event |
+	event := TerminalButtonEvent new.
+	event x: lparam iloword.
+	event y: lparam ihiword.
+	event doubleClick: true.
+	self handleButtonEvent: event pressed: true.  	
+	^false! !
+
+!Terminal .CALLBACK methods 08:36 - 10/06/04!
+WM_LBUTTONDOWN: wparam with: lparam
+	| event |
+	event := TerminalButtonEvent new.
+	event x: lparam iloword.
+	event y: lparam ihiword.
+	event doubleClick: false.
+	self handleButtonEvent: event pressed: true.  
+	^0! !
+
+!Terminal .CALLBACK methods 08:37 - 10/06/04!
+WM_LBUTTONUP: wparam with: lparam
+	| event |
+	event := TerminalButtonEvent new.
+	event x: lparam iloword.
+	event y: lparam ihiword.
+	event doubleClick: false.
+	self handleButtonEvent: event pressed: false.  
+	^0! !
+
+!Terminal .CALLBACK methods 08:42 - 07/01/04!
+WM_MOUSEWHEEL: wparam with: lparam
+	| event |
+	event := TerminalKeyEvent implementorClass singleton.
+	(wparam hiword asInteger < 16384) 
+		ifTrue: [ event initializeFromOSEvent: VK_UP isCharacter: false. ] 
+		ifFalse: [ event initializeFromOSEvent: VK_DOWN isCharacter: false. ].
+ 	event isValidAscii ifFalse: [ ^false ].
+	self handleKeyEvent: event.
+	^0! !
+
+!Terminal .CALLBACK methods 09:43 - 04/02/04!
+WM_SYSCOMMAND: uCmdType with: lparam
+	"
+	Private - Processes sys commands.  
+	
+	  used to connect open settings menu item and openProperties method 
+	"  
+	(self basicEvent: uCmdType & 16rFFF0 with: NULL with: NULL) isNil ifTrue: [
+		" unhandled event "
+		^self defWindowProc: WM_SYSCOMMAND with: uCmdType with: lparam 
+	].
+	^FALSE! !
+
+!Terminal .CALLBACK methods 02:35 - 09/06/04!
+WM_SYSKEYDOWN: wparam with: lparam
+	| event |
+	event := TerminalKeyEvent implementorClass singleton.
+	event initializeFromOSEvent: wparam isCharacter: false.
+    event isValidScanCode ifFalse: [ ^false ].
+    event isAltPressed: (lparam asInteger bitAt: 29 + 1 "1 based") = 1.
+	self handleKeyEvent: event  .
+	^true! !
+
+!Terminal .CALLBACK methods 03:10 - 03/19/04!
+WM_TIMER: wTimerID with: tmprc
+	blinker isNil ifFalse: [ self toggleHighlightCursor ].
+	^0! !
+
+Compiler addCatDescription: 'UI Access'A text: 'User Interface Methods'A.
+Compiler addCatDescription: 'Dialogs'A text: 'Dialogs'A.
+Compiler addCatDescription: 'Operations'A text: 'Operations
+Operations on this object'A.
+Compiler addCatDescription: 'publicMethods'A text: 'publicMethods'A.
+Compiler addCatDescription: 'Event Handling'A text: 'Event Handling'A.
+Compiler addCatDescription: '*'A text: '*
+Default category.'A.
+Compiler addCatDescription: '.CALLBACK'A text: '.CALLBACK
+This category marks methods that are called indirectly. 'A.
+Compiler addCatDescription: 'Testing'A text: 'Testing
+Test the receiver and answer a Boolean.'A.!

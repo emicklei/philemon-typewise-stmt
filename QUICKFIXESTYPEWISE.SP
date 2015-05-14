@@ -1,0 +1,255 @@
+""
+PROJECTNAME QuickFixesTypeWise .
+PROJECTCATEGORY  .
+INITSCRIPT QuickFixesTypeWise_preload .
+
+CLASS CgDrawable
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	fillArc:x:y:width:height:angle1:angle2:
+	fillPolygon:points:shape:mode:
+END
+
+CLASS Rectangle
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	intersect:
+END
+
+CLASS TerminalClient
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	aboutToClose
+END
+
+CLASS Version
+INCLUDEDEF=1
+CLASSMETHODS *
+INSTANCEMETHODS *
+
+CLASS IndexedMessageSend
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	printOn:
+END
+
+CLASS WinRectangle
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	intersect:
+END
+
+CLASS TerminalWidget
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+END
+
+CLASS String
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	occursIn:at:
+END
+
+CLASS StringA
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	indexOf:startingAt:
+END
+
+CLASS UITerminalComponent
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	stopBlinker
+END
+
+CLASS Terminal
+INCLUDEDEF=0
+CLASSMETHODS 
+BEGIN
+END
+INSTANCEMETHODS 
+BEGIN
+	postOpen
+END
+! !
+Object subclass: #Version
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	comment: ''
+	category: ''!
+
+!CgDrawable * methods 11:45 - 08/24/04!
+fillArc: aCgDrawable x: x y: y width: width height: height angle1: angle1 angle2: angle2
+	"STMT QUICKFIXESTYPEWISE.SP"
+	" WARNING!! 
+		This method does not behave as expected. A full circle is drawn 
+		instead of an arc. No other behaviour needed at the moment "
+	| hBrush |	
+	hBrush := self target selectSolidBrush: (RGB red: 0 green: 0 blue: 0).
+	self target ellipse_x: x y: y cx: width cy: height.
+	self target restoreObject: hBrush! !
+
+!CgDrawable * methods 11:42 - 10/06/04!
+fillPolygon: gc points: points shape: shape mode: mode      
+	"STMT QUICKFIXESTYPEWISE.SP"
+	| oldPoint |
+	points do: [ :each |
+		oldPoint isNil ifFalse: [
+			self drawLine: gc x1: oldPoint x y1: oldPoint y x2: each x y2: each y.
+		].
+		oldPoint := each.
+	].! !
+
+!Rectangle publicMethods methods 08:21 - 03/02/05!
+intersect: operand
+	"STMT QUICKFIXESTYPEWISE.SP"
+        "Answer a rectangle which is the area in which the receiver overlaps with operand."
+
+        ^(self origin max: operand origin)
+                corner: (self corner min: operand corner)! !
+
+!TerminalClient publicMethods methods 04:29 - 11/16/04!
+aboutToClose
+	"STMT QUICKFIXESTYPEWISE.SP"
+	self primPost: (IndexedMessageSend receiver: '_server' index: TMClose).
+	self application shutDown! !
+
+!Version class * methods 02:39 - 10/13/04!
+versionStringForFile: aFilePath
+	"STMT QUICKFIXESTYPEWISE.SP"
+	|vi stream |
+	stream := WriteStream on: ''.
+	vi := File getFileVersionInfo: aFilePath. 
+	vi notNil ifTrue: [ 
+		stream nextPutAll: aFilePath.
+		stream nextPutAll: ', Version ';
+			nextPutAll: vi dwFileVersionMS hiword printString.
+		vi dwFileVersionMS loword ~~ 0 ifTrue: [
+			stream nextPut: $.; nextPutAll: vi dwFileVersionMS loword printString.
+		].
+		stream nextPut: $.; nextPutAll: vi dwFileVersionLS hiword printString.
+		vi dwFileVersionLS loword ~~ 0 ifTrue: [
+			stream nextPut: $.; nextPutAll: vi dwFileVersionLS loword printString.
+		].
+		^stream contents.
+	]
+	ifFalse: [
+		^''.
+	].! !
+
+!IndexedMessageSend publicMethods methods 10:45 - 10/04/04!
+printOn: aStream
+	"STMT QUICKFIXESTYPEWISE.SP"
+	aStream nextPutAll: self class name ;nextPut: $( ;print: receiver ;nextPut:$, ;print: index asString ;nextPut: $, ;print: arguments ;nextPut: $)! !
+
+!WinRectangle Operations methods 08:21 - 03/02/05!
+intersect: aRectangle
+	"STMT QUICKFIXESTYPEWISE.SP"
+	"
+	Answers  a rectangle that is the intersection of the receiver 
+	and the argument rectangle.
+	Parameters:
+		aRectangle	A Rectangle to intersect with.
+	Return Value:
+		A WinRectangle.
+	"
+	^super intersect: aRectangle
+"	| rcIntersect |
+	rcIntersect := WinRectangle new.
+	WINAPI IntersectRect: rcIntersect basicAddress 
+		with: self basicAddress 
+		with: aRectangle.
+	^rcIntersect"! !
+
+!String .INTERNALDEV methods 07:15 - 10/24/05!
+occursIn: containingString at: iStart     
+	"STMT QUICKFIXESTYPEWISE.SP"
+	"  'def' occursIn: 'abcdefgh' at: 4
+  	"
+	^(containingString indexOfSubCollection: self startingAt: iStart) == iStart! !
+
+!StringA Accessing methods 03:01 - 10/13/04!
+indexOf: aCharacter startingAt: iStart
+	"STMT QUICKFIXESTYPEWISE.SP"
+	"
+	Answers the index of the first occurrence of aCharacter after iStart.
+	Returns 0 if it is not found.
+	Parameters: 
+		aCharacter   A Character to scan for.
+		iStart       The starting index, an Integer between 1 and the receiver's size.
+	Return Value:
+		An Integer which is the index between iStart and the receiver's size, or zero if not found.
+	"
+	| pChar |
+	(iStart > self size) ifTrue: [ ^0 ].
+	(pChar := WINAPI strchr: (self _assertA: iStart) with: aCharacter) == 0 ifTrue: [
+		^NULL
+	].
+	^pChar - self basicAddress + 1! !
+
+!UITerminalComponent publicMethods methods 07:29 - 03/09/05!
+stopBlinker
+	"STMT QUICKFIXESTYPEWISE.SP"
+        self killBlinker.
+        focusWidget isNil
+                ifTrue: [ ^self ].
+        cursor isNil
+                ifTrue: [ ^self ].
+        cursor <= self grid size
+                ifFalse:[^self].
+        self activeCharacter highlight: false insertMode: true! !
+
+!Terminal * methods 02:37 - 10/05/04!
+postOpen        
+	"STMT QUICKFIXESTYPEWISE.SP"
+	screen isNil ifTrue: [ ^self ].
+	self checkGridSize.
+	super postOpen.
+	"screen notNil ifTrue: [ self title: screen title asString ]"! !
+
+Compiler addCatDescription: 'Accessing'A text: 'Accessing
+Accesses properties of the object.'A.
+Compiler addCatDescription: 'publicMethods'A text: 'publicMethods'A.
+Compiler addCatDescription: 'Operations'A text: 'Operations
+Operations on this object'A.
+Compiler addCatDescription: '*'A text: '*
+Default category.'A.
+Compiler addCatDescription: '.INTERNALDEV'A text: '.INTERNALDEV
+This category marks methods that are not included in runtime images.'A.!

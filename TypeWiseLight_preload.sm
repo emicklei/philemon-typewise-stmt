@@ -1,0 +1,33 @@
+| pl clslist lightVersion|
+lightVersion := true.
+clslist := OrderedCollection new.
+clslist add: 'PhilemonKernelExtensions'.    
+clslist add: 'PhilemonColorSupport'.
+clslist add: 'PhilemonObjectSerialization'.
+clslist add: 'PhilemonEventTriggerSupport'. 
+clslist add: 'PhilemonTextEmphasisSupport'.
+clslist add: 'PhilemonTerminalView'.
+clslist add: 'PhilemonTerminalClient'.
+pl := ProjectsLoader new.
+pl libPath: (Array 	with: 'd:\\data\\stmtexport\' 
+					with: 'C:\\Program Files\\Smalltalk MT 5.1\\Source\\' 
+					with: 'C:\\Program Files\\Smalltalk MT 5.1\\Source\\GdiPlus\\' 
+					with: 'C:\\Program Files\\Smalltalk MT 5.1\\Extras\\winsock\\').
+pl loadStMtProjectFromFile: 'smalltalk.spx'.
+pl loadStMtProjectFromFile: 'smalltalk extensions.sp'.
+pl loadStMtProjectFromFile: 'Smalltalk system extensions.sp'.  
+lightVersion 
+	ifFalse: [ pl loadStMtProjectFromFile: 'GdiPlus.spx' ]
+	ifTrue: [ pl loadStMtProjectFromFile: 'GdiPlusStub.spx' ].    
+pl loadStMtProjectFromFile: 'Internet.spx'.   
+pl loadStMtProjectFromFile: 'PhilemonLogger.sp'.   
+pl loadStMtProjectFromFile: 'PhilemonStMtExtensions.sp'.
+pl loadStMtProjectFromFile: 'PhilemonToolsSUnitExtensions.sp'.
+pl loadStMtProjectFromFile: 'PhilemonStMtExtensionsTest.sp'.
+pl loadStMtProjectFromFile: 'PhilemonStMtGraphics.sp'.
+pl loadStMtProjectFromFile: 'PhilemonVAStToStMtSpecific.sp'.
+pl loadProjectsFromFilesNamed: clslist.
+"lightVersion
+	ifFalse: [ pl loadStMtProjectFromFile: 'TypeWise.sp' ]
+	ifTrue: [ pl loadStMtProjectFromFile: 'TypeWiseLight.sp' ]."
+IDE::StThreadViewer createTrayIcon.
